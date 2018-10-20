@@ -1,0 +1,24 @@
+$$ Windows uses a linked list for running processes with 
+$$ FLINK & BLINK pointers. This script uses the activeprocess 
+$$ linked list to iterate through to identify running processes
+
+.printf "List all processes using active process linked list\n\n"
+
+$$ r? @$t0 = ?? @@(nt!PsActiveProcessHead)
+.printf "ActiveProcessHead: 0x%x\n\n", @$t0
+dt (nt!_LIST_ENTRY)@$t0
+
+.printf "---------------------------------------------------------------------------------------\n"
+
+$$ using the ActiveProcessList linked list, iterate through FLINK's until we get back to start
+r? @$t1 = @$t0->Flink
+
+.while (@$t1 != @$t0)
+{
+	r? @$t2 = #CONTAINING_RECORD(@$t1 ,nt!_EPROCESS, ActiveProcessLinks)
+	.printf "Process Name: %ma | Process Id: %d | ImageBase: 0x%x | PEB: 0x%x |\n", @@(@$t2->ImageFileName), @@(@$t2->UniqueProcessId), @@(@$t2->Peb), @@(@$t2->Peb)
+	r? @$t1 = @$t1->Flink
+}
+
+
+
