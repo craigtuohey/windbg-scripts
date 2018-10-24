@@ -4,9 +4,10 @@ $$ linked list to iterate through to identify running processes
 
 .printf "List all processes using active process linked list\n\n"
 
-$$ r? @$t0 = ?? @@(nt!PsActiveProcessHead)
+r? @$t0 = (nt!_LIST_ENTRY*)@@masm(nt!PsActiveProcessHead)
 .printf "ActiveProcessHead: 0x%x\n\n", @$t0
-dt (nt!_LIST_ENTRY)@$t0
+
+dt (nt!_LIST_ENTRY*)@$t0
 
 .printf "---------------------------------------------------------------------------------------\n"
 
@@ -15,10 +16,8 @@ r? @$t1 = @$t0->Flink
 
 .while (@$t1 != @$t0)
 {
-	r? @$t2 = #CONTAINING_RECORD(@$t1 ,nt!_EPROCESS, ActiveProcessLinks)
-	.printf "Process Name: %ma | Process Id: %d | ImageBase: 0x%x | PEB: 0x%x |\n", @@(@$t2->ImageFileName), @@(@$t2->UniqueProcessId), @@(@$t2->Peb), @@(@$t2->Peb)
+	r? @$t2 = #CONTAINING_RECORD(@$t1, nt!_EPROCESS, ActiveProcessLinks)
+	.printf "Process Name: %ma | Process Id: %d | ImageBase: 0x%x | PEB: 0x%x |\n", @@C++(@$t2->ImageFileName), @@C++(@$t2->UniqueProcessId), @@C++(@$t2->Peb), @@C++(@$t2->Peb)
 	r? @$t1 = @$t1->Flink
 }
-
-
 
